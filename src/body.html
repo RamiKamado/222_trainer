@@ -1,0 +1,188 @@
+<div class="screen on" id="scr-sel">
+  <div class="head">
+    <h1>2x2 <em>手順練習</em>ツール</h1>
+    <p class="sub">手順セットとケースを選んでから、下の「練習へ進む」を押してください。図は左が上段、右が下段（上から透かして見た形）です。ケース一覧は手順セットで絞り込めます。選んだケースはセットをまたいでまとめて出題します。スクランブルは上 黄・前 緑で持って回してください。</p>
+  </div>
+  <div class="sel-body">
+    <div class="pset">
+      <div class="t">練習の種類</div>
+      <div class="seg" id="ptype"></div>
+      <div class="pempty" id="pinfo"></div>
+    </div>
+    <div class="pset">
+      <div class="t">プリセット</div>
+      <div class="prow">
+        <input id="pname" type="text" placeholder="名前（例: 苦手な EG-1）" maxlength="40">
+        <button class="mini" id="psave" type="button">選択中を保存</button>
+      </div>
+      <div class="prow" style="margin-top:7px">
+        <button class="mini" id="pexport" type="button">書き出し</button>
+        <button class="mini" id="pimport" type="button">ファイルから読み込み</button>
+        <button class="mini" id="ppaste" type="button">貼り付けて読み込み</button>
+        <input type="file" id="pfile" accept=".json,application/json" style="display:none">
+      </div>
+      <div class="imppanel" id="exppanel">
+        <div class="t">書き出したデータです。コピーして保存してください（「ファイルに保存」はブラウザによっては使えません）。</div>
+        <textarea id="exptext" readonly spellcheck="false"></textarea>
+        <div class="prow" style="margin-top:8px">
+          <button class="mini" id="expcopy" type="button">コピー</button>
+          <button class="mini" id="expfile" type="button">ファイルに保存</button>
+          <button class="mini" id="expclose" type="button">閉じる</button>
+        </div>
+      </div>
+      <div class="imppanel" id="pastepanel">
+        <div class="t">書き出した JSON を貼り付けてください。</div>
+        <textarea id="pastetext" spellcheck="false"></textarea>
+        <div class="prow" style="margin-top:8px">
+          <button class="mini" id="pastego" type="button">読み込む</button>
+          <button class="mini" id="pastecancel" type="button">やめる</button>
+        </div>
+      </div>
+      <div class="imppanel" id="imppanel">
+        <div class="t" id="impsum"></div>
+        <label><input type="checkbox" id="imp-presets" checked> プリセット</label>
+        <label><input type="checkbox" id="imp-custom" checked> 自作手順</label>
+        <label><input type="checkbox" id="imp-stats" checked> 統計</label>
+        <label><input type="checkbox" id="imp-replace"> 統計を統合せず置き換える</label>
+        <label><input type="checkbox" id="imp-settings"> 選択状態・設定も取り込む</label>
+        <div class="prow" style="margin-top:8px">
+          <button class="mini" id="impgo" type="button">取り込む</button>
+          <button class="mini" id="impcancel" type="button">やめる</button>
+        </div>
+      </div>
+      <div class="plist" id="plist"></div>
+      <div class="pempty" id="pempty"></div>
+    </div>
+    <div class="pset">
+      <div class="t">Slow（苦手なケースだけに絞る）</div>
+      <div class="prow" style="margin-bottom:7px">
+        <button class="sw" id="slowon" type="button" aria-pressed="false">Slow を使う</button>
+      </div>
+      <div class="prow">
+        <span class="lab">平均タイムが</span>
+        <input id="slowsec" type="number" min="0.2" max="60" step="0.1" style="width:78px;min-width:0;flex:none">
+        <span class="lab">秒を超えるケースを出題</span>
+      </div>
+      <div class="pempty" id="slowinfo"></div>
+    </div>
+    <div class="pset">
+      <div class="t">スクランブルと統計</div>
+      <div class="prow">
+        <span class="lab" style="width:7.5em">最小手数</span>
+        <div class="seg" id="minlen" style="flex:1;min-width:220px"></div>
+      </div>
+      <div class="prow" style="margin-top:8px">
+        <span class="lab" style="width:7.5em">統計の色</span>
+        <span class="lab">0 秒で緑、</span>
+        <input id="colormax" type="number" min="1" max="60" step="0.5" style="width:78px;min-width:0;flex:none">
+        <span class="lab">秒以上で赤</span>
+      </div>
+      <div class="pempty">スクランブルは最短手数の表から探索して作ります。短すぎると手順の逆回しそのものになるため、最小手数で長さをそろえられます。</div>
+    </div>
+    <div class="filt">
+      <div class="t">手順セットで絞り込み <span id="filtinfo"></span></div>
+      <div class="setgrid" id="setgrid"></div>
+    </div>
+    <div class="viewrow">
+      <span class="zlab">表示</span>
+      <button class="sw" id="vlist" type="button" aria-pressed="false">手順も表示</button>
+      <button class="mini" id="vopen" type="button" style="margin-left:auto">すべて開く</button>
+      <button class="mini" id="vclose" type="button">すべて閉じる</button>
+    </div>
+    <div id="setsec"></div>
+  </div>
+  <div class="selbar"><div class="selbar-in">
+    <span class="n" id="selcount"></span>
+    <button class="mini" id="selall" type="button" title="表示中のセットをすべて選択">全選択</button>
+    <button class="mini" id="selnone" type="button" title="表示中のセットをすべて解除">全解除</button>
+    <button class="mini" id="statopen" type="button">統計</button>
+    <button class="go" id="go" type="button">練習へ進む</button>
+  </div></div>
+</div>
+
+<!-- ============ 練習 ============ -->
+<div class="screen" id="scr-run">
+  <div class="topbar">
+    <button class="icon" id="back" type="button">← ケース選択</button>
+    <button class="icon" id="reveal" type="button" aria-pressed="false">ケース名を表示</button>
+    <button class="icon" id="slowtog" type="button" aria-pressed="false" title="苦手なケースだけに絞る">Slow</button>
+    <div class="modes" id="mode">
+      <button type="button" data-v="straight">Straight</button>
+      <button type="button" data-v="random" aria-pressed="true">Random</button>
+      <button type="button" data-v="recap">Recap</button>
+    </div>
+  </div>
+  <div class="run">
+    <div class="scr" id="scramble"></div>
+    <div class="timer" id="timer"><div class="tval" id="tval">0.00</div>
+      <div class="thint" id="thint"></div></div>
+    <div class="side">
+      <div class="stat"><span>回数</span><b id="k-n">0</b></div>
+      <div class="stat"><span>直前</span><b id="k-last">—</b></div>
+      <div class="stat"><span>ベスト</span><b id="k-best">—</b></div>
+      <div class="stat"><span>ワースト</span><b id="k-worst">—</b></div>
+      <div class="stat"><span>平均</span><b id="k-mean">—</b></div>
+      <div class="stat"><span>ao5</span><b id="k-ao5">—</b></div>
+      <div class="stat"><span>ao12</span><b id="k-ao12">—</b></div>
+      <div class="stat" id="row-prog"><span>残り</span><b id="k-prog">—</b></div>
+      <div class="stat" id="row-slow"><span>Slow対象</span><b id="k-slow">—</b></div>
+      <div class="sect">記録</div>
+      <div class="times" id="times"></div>
+      <button class="mini" id="undo" type="button">直前の記録を削除</button>
+    </div>
+    <div class="prev" id="prev"></div>
+  </div>
+</div>
+
+<!-- ============ AUF クイズ ============ -->
+<div class="screen" id="scr-auf">
+  <div class="topbar">
+    <button class="icon" id="aback" type="button">← ケース選択</button>
+    <button class="icon" id="areveal" type="button" aria-pressed="false">ケース名を表示</button>
+    <button class="icon" id="aslowtog" type="button" aria-pressed="false" title="苦手なケースだけに絞る">Slow</button>
+    <button class="icon" id="astat" type="button">統計</button>
+    <div class="modes" id="amode">
+      <button type="button" data-v="straight">Straight</button>
+      <button type="button" data-v="random" aria-pressed="true">Random</button>
+      <button type="button" data-v="recap">Recap</button>
+    </div>
+  </div>
+  <div class="arun">
+    <div class="aq">
+      <div class="aname" id="aname"></div>
+      <div class="afig" id="afig"></div>
+      <div class="aask">AUFを選択</div>
+      <div class="abtns" id="abtns"></div>
+      <div class="afb" id="afb"></div>
+      <div class="aalg" id="aalg"></div>
+    </div>
+    <div class="aside">
+      <div class="stat"><span>回答数</span><b id="a-n">0</b></div>
+      <div class="stat"><span>正解</span><b id="a-ok">0</b></div>
+      <div class="stat"><span>正答率</span><b id="a-rate">—</b></div>
+      <div class="stat"><span>連続正解</span><b id="a-streak">0</b></div>
+      <div class="stat"><span>平均回答時間</span><b id="a-time">—</b></div>
+      <div class="stat" id="arow-prog"><span>残り</span><b id="a-prog">—</b></div>
+      <div class="stat" id="arow-slow"><span>Slow対象</span><b id="a-slow">—</b></div>
+      <div class="sect">ケースごと（このセッション）</div>
+      <div class="acases" id="acases"></div>
+      <div class="sect">記録</div>
+      <div class="alog" id="alog"></div>
+      <button class="mini" id="aundo" type="button">直前の回答を取り消す</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 統計 ============ -->
+<div class="screen" id="scr-stat">
+  <div class="head">
+    <div style="display:flex;align-items:center;gap:9px">
+      <button class="mini" id="statback" type="button">← ケース選択</button>
+      <button class="mini" id="statreset" type="button" style="margin-left:auto">記録を消去</button>
+    </div>
+    <h1 style="margin-top:10px">統計</h1>
+    <p class="sub" id="statsub"></p>
+  </div>
+  <div class="statwrap" id="statbody"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
