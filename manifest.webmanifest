@@ -1,0 +1,17 @@
+{
+  "name": "2x2 手順練習ツール",
+  "short_name": "2x2 Algs",
+  "description": "2x2x2 の PBL・CLL・EG・TCLL・TEG・LS の手順練習（タイム計測と AUF クイズ）",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#14151c",
+  "theme_color": "#14151c",
+  "lang": "ja",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
